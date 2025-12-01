@@ -76,17 +76,12 @@ Access at http://localhost:5173
 - [Quickstart Guide](docs/quickstart.md) - Get running in 5 minutes
 - [User Guide](docs/user-guide.md) - Complete feature documentation
 
-### Architecture & Development
-- [Architecture Overview](docs/architecture.md) - System design and components
-- [Testing Guide](docs/testing.md) - Running tests and validation
-- [Frontend Development](docs/frontend-development.md) - Web UI development
-
 ### Provider Setup
 - [Azure OpenAI Setup](docs/azure-setup.md) - Configure Azure OpenAI
 
 ### Examples & References
 - [Examples Directory](examples/README.md) - Sample workflows and code
-- [Research Workflow Guide](RESEARCH_WORKFLOW_GUIDE.md) - Detailed workflow documentation
+- [Research Workflow Guide](docs/research_workflow_guide.md) - Detailed workflow documentation
 
 ## Architecture
 
@@ -99,7 +94,7 @@ Built on Google ADK with specialized agents:
 - **Execution Engine**: Docker sandbox execution
 - **Analysis Agent**: Statistical validation and interpretation
 
-See [docs/architecture.md](docs/architecture.md) for detailed system design.
+See [Architecture Overview](docs/architecture.md) for detailed system design.
 
 ## Project Structure
 
@@ -134,29 +129,15 @@ arl/
 - **Scientific Stack**: NumPy, pandas, scikit-learn, PyTorch
 - **Frontend**: React 18, TypeScript, Tailwind CSS, shadcn/ui
 
-## Development Status
-
-**Version**: 0.1.0 (Development)
-**Target**: v1.0 Complete Research Cycle
-
-See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for development roadmap.
-
 ## Contributing
 
 We welcome contributions! Please see our development guides:
 - [Testing Guide](docs/testing.md)
-- [Architecture Overview](docs/architecture.md)
 - [Frontend Development](docs/frontend-development.md)
 
 ## License
 
 MIT License - See LICENSE file
-
-## Support
-
-- **Documentation**: [docs/](docs/)
-- **Examples**: [examples/](examples/)
-- **Issues**: GitHub Issues (coming soon)
 
 ## Citation
 
