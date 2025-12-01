@@ -81,7 +81,7 @@ Access at http://localhost:5173
 
 ### Examples & References
 - [Examples Directory](examples/README.md) - Sample workflows and code
-- [Research Workflow Guide](docs/research_workflow_guide.md) - Detailed workflow documentation
+- [Research Workflow Guide](docs/research-workflow-guide.md) - Detailed workflow documentation
 
 ## Architecture
 
