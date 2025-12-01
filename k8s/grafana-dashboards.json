@@ -1,0 +1,110 @@
+{
+  "dashboard": {
+    "title": "ARL Application Metrics",
+    "tags": ["arl", "application"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(api_calls_total[5m])",
+            "legendFormat": "{{endpoint}}"
+          }
+        ],
+        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8}
+      },
+      {
+        "id": 2,
+        "title": "Response Time (p95)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(api_call_duration_bucket[5m]))",
+            "legendFormat": "{{endpoint}}"
+          }
+        ],
+        "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8}
+      },
+      {
+        "id": 3,
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(errors_total[5m])",
+            "legendFormat": "{{category}}"
+          }
+        ],
+        "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8}
+      },
+      {
+        "id": 4,
+        "title": "Active WebSocket Connections",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "websocket_connections_total - websocket_disconnections_total",
+            "legendFormat": "Active Connections"
+          }
+        ],
+        "gridPos": {"x": 12, "y": 8, "w": 12, "h": 8}
+      },
+      {
+        "id": 5,
+        "title": "Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "container_memory_usage_bytes{namespace='arl'}",
+            "legendFormat": "{{pod}}"
+          }
+        ],
+        "gridPos": {"x": 0, "y": 16, "w": 12, "h": 8}
+      },
+      {
+        "id": 6,
+        "title": "CPU Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(container_cpu_usage_seconds_total{namespace='arl'}[5m])",
+            "legendFormat": "{{pod}}"
+          }
+        ],
+        "gridPos": {"x": 12, "y": 16, "w": 12, "h": 8}
+      },
+      {
+        "id": 7,
+        "title": "Pod Count",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(kube_pod_info{namespace='arl'})",
+            "legendFormat": "Pods"
+          }
+        ],
+        "gridPos": {"x": 0, "y": 24, "w": 6, "h": 4}
+      },
+      {
+        "id": 8,
+        "title": "Request Success Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(rate(api_calls_total{status=~'2..'}[5m])) / sum(rate(api_calls_total[5m])) * 100",
+            "legendFormat": "Success %"
+          }
+        ],
+        "gridPos": {"x": 6, "y": 24, "w": 6, "h": 4}
+      }
+    ],
+    "refresh": "30s",
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    }
+  }
+}

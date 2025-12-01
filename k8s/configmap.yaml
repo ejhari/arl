@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: arl-frontend-config
+  namespace: arl
+data:
+  # Frontend configuration
+  VITE_API_URL: "https://api.arl.example.com"
+  VITE_WS_URL: "wss://api.arl.example.com/ws"
+  VITE_ENVIRONMENT: "production"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: arl-backend-config
+  namespace: arl
+data:
+  # Application settings
+  APP_NAME: "ARL API"
+  DEBUG: "False"
+
+  # CORS
+  CORS_ORIGINS: '["https://arl.example.com","https://www.arl.example.com"]'
+
+  # JWT
+  JWT_ALGORITHM: "HS256"
+  ACCESS_TOKEN_EXPIRE_MINUTES: "15"
+  REFRESH_TOKEN_EXPIRE_DAYS: "30"
+
+  # Database
+  DATABASE_URL: "postgresql://arl_user:PLACEHOLDER@postgres:5432/arl_db"
+
+  # Redis
+  REDIS_URL: "redis://redis:6379/0"
+
+  # Monitoring
+  METRICS_ENABLED: "true"
+  LOG_LEVEL: "INFO"

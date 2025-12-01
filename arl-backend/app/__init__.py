@@ -1,0 +1,1 @@
+"""ARL Backend Application"""
