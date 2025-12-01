@@ -4,11 +4,13 @@ from typing import Any
 
 from google.adk import Agent
 
+from arl.a2a.client import A2AAgentFactory
 from arl.adk_agents.analysis.agent import create_analysis_agent
 from arl.adk_agents.code_gen.agent import create_code_generator
 from arl.adk_agents.execution.agent import create_execution_engine
 from arl.adk_agents.experiment.agent import create_experiment_designer
 from arl.adk_agents.hypothesis.agent import create_hypothesis_agent
+from arl.config.a2a_config import a2a_config
 from arl.config.llm_config import POWERFUL_LLM_CONFIG
 from arl.core.memory import MemoryService
 from arl.core.session import SessionService
@@ -31,6 +33,7 @@ class OrchestratorAgent(Agent):
         super().__init__(name=name, model=POWERFUL_LLM_CONFIG.model)
 
         # Initialize specialist agents (lazy loaded to avoid circular imports)
+        # These will be either local agents or A2A clients based on configuration
         self._hypothesis_agent = None
         self._experiment_designer = None
         self._code_generator = None
@@ -41,34 +44,52 @@ class OrchestratorAgent(Agent):
         self._session_service = None
         self._memory_service = None
 
-    @property
-    def hypothesis_agent(self):
+        # A2A configuration
+        self._a2a_enabled = a2a_config.enabled
+
+    async def _get_hypothesis_agent(self):
+        """Get hypothesis agent (local or A2A remote based on configuration)."""
         if self._hypothesis_agent is None:
-            self._hypothesis_agent = create_hypothesis_agent()
+            if self._a2a_enabled:
+                self._hypothesis_agent = await A2AAgentFactory.create_agent_client("hypothesis")
+            else:
+                self._hypothesis_agent = create_hypothesis_agent()
         return self._hypothesis_agent
 
-    @property
-    def experiment_designer(self):
+    async def _get_experiment_designer(self):
+        """Get experiment designer agent (local or A2A remote based on configuration)."""
         if self._experiment_designer is None:
-            self._experiment_designer = create_experiment_designer()
+            if self._a2a_enabled:
+                self._experiment_designer = await A2AAgentFactory.create_agent_client("experiment")
+            else:
+                self._experiment_designer = create_experiment_designer()
         return self._experiment_designer
 
-    @property
-    def code_generator(self):
+    async def _get_code_generator(self):
+        """Get code generator agent (local or A2A remote based on configuration)."""
         if self._code_generator is None:
-            self._code_generator = create_code_generator()
+            if self._a2a_enabled:
+                self._code_generator = await A2AAgentFactory.create_agent_client("code_gen")
+            else:
+                self._code_generator = create_code_generator()
         return self._code_generator
 
-    @property
-    def execution_engine(self):
+    async def _get_execution_engine(self):
+        """Get execution engine agent (local or A2A remote based on configuration)."""
         if self._execution_engine is None:
-            self._execution_engine = create_execution_engine()
+            if self._a2a_enabled:
+                self._execution_engine = await A2AAgentFactory.create_agent_client("execution")
+            else:
+                self._execution_engine = create_execution_engine()
         return self._execution_engine
 
-    @property
-    def analysis_agent(self):
+    async def _get_analysis_agent(self):
+        """Get analysis agent (local or A2A remote based on configuration)."""
         if self._analysis_agent is None:
-            self._analysis_agent = create_analysis_agent()
+            if self._a2a_enabled:
+                self._analysis_agent = await A2AAgentFactory.create_agent_client("analysis")
+            else:
+                self._analysis_agent = create_analysis_agent()
         return self._analysis_agent
 
     @property
@@ -142,7 +163,7 @@ class OrchestratorAgent(Agent):
 
     async def _hypothesis_workflow(
         self,
-        
+
         session_id: str,
         user_request: str,
     ) -> dict[str, Any]:
@@ -151,9 +172,12 @@ class OrchestratorAgent(Agent):
         literature_summary = user_request
         research_gap = "To be identified"  # Would extract from literature analysis
 
+        # Get hypothesis agent (local or remote)
+        hypothesis_agent = await self._get_hypothesis_agent()
+
         # Generate hypotheses
-        hypotheses = await self.hypothesis_agent.run(
-            
+        hypotheses = await hypothesis_agent.run(
+
             literature_summary=literature_summary,
             research_gap=research_gap,
             domain="general",
@@ -180,16 +204,22 @@ class OrchestratorAgent(Agent):
         hypotheses = session.state.get("hypotheses", {})
         hypothesis = hypotheses.get("raw_output", "")  # Simplified
 
+        # Get experiment designer agent (local or remote)
+        experiment_designer = await self._get_experiment_designer()
+
         # Design experiment
-        design = await self.experiment_designer.run(
-            
+        design = await experiment_designer.run(
+
             hypothesis=hypothesis,
             domain="general",
         )
 
+        # Get code generator agent (local or remote)
+        code_generator = await self._get_code_generator()
+
         # Generate code
-        code_result = await self.code_generator.run(
-            
+        code_result = await code_generator.run(
+
             experiment_design=design,
             domain="general",
         )
@@ -243,7 +273,10 @@ class OrchestratorAgent(Agent):
             hypotheses = session.state.get("hypotheses", {})
             design = session.state.get("design", {})
 
-            analysis = await self.analysis_agent.run(
+            # Get analysis agent (local or remote)
+            analysis_agent = await self._get_analysis_agent()
+
+            analysis = await analysis_agent.run(
                 hypothesis=hypotheses.get("raw_output", ""),
                 experiment_design=design,
                 execution_results=execution_result,
@@ -258,8 +291,11 @@ class OrchestratorAgent(Agent):
             }
 
         # Docker is available - execute experiment
+        # Get execution engine agent (local or remote)
+        execution_engine = await self._get_execution_engine()
+
         try:
-            execution_result = await self.execution_engine.run(
+            execution_result = await execution_engine.run(
                 experiment_id=f"exp_{session_id}",
                 code=code,
             )
@@ -279,7 +315,10 @@ class OrchestratorAgent(Agent):
         hypotheses = session.state.get("hypotheses", {})
         design = session.state.get("design", {})
 
-        analysis = await self.analysis_agent.run(
+        # Get analysis agent (local or remote)
+        analysis_agent = await self._get_analysis_agent()
+
+        analysis = await analysis_agent.run(
 
             hypothesis=hypotheses.get("raw_output", ""),
             experiment_design=design,

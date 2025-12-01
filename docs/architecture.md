@@ -140,6 +140,37 @@ User Interface (CLI/API/Web)
 - Filesystem / Cloud Storage (artifacts)
 - Vertex AI Memory Bank (sessions)
 
+## Agent Communication
+
+### A2A Protocol Support
+
+ARL supports the **A2A (Agent-to-Agent) Protocol** for standardized agent communication:
+
+- **Local Mode**: Agents run in same process (no network overhead)
+- **Remote Mode**: Agents as independent microservices using JSON-RPC 2.0/HTTP
+- **Hybrid Mode**: Mix of local and remote agents based on configuration
+
+See [A2A Protocol Documentation](a2a-protocol.md) for detailed information.
+
+### Communication Patterns
+
+**Local (Default)**:
+```
+Orchestrator → Direct Method Call → Hypothesis Agent
+```
+
+**A2A Remote**:
+```
+Orchestrator → HTTP Request → A2A Server (Hypothesis Agent) → HTTP Response
+```
+
+**Agent Discovery**:
+Each agent exposes an "Agent Card" (JSON metadata) describing:
+- Available skills and capabilities
+- Input/output schemas
+- Service endpoint
+- Authentication requirements
+
 ## Deployment Options
 
 ### Local Deployment
@@ -147,6 +178,7 @@ User Interface (CLI/API/Web)
 - SQLite database
 - Local LLM support (Ollama)
 - Docker execution
+- **A2A**: Disabled (direct method calls)
 
 ### Cloud Deployment (GCP)
 - Vertex AI Agent Engine
@@ -154,11 +186,19 @@ User Interface (CLI/API/Web)
 - Cloud SQL (metadata)
 - Cloud Storage (artifacts)
 - IAM-based security
+- **A2A**: Enabled (microservices architecture)
 
 ### Hybrid Deployment
 - Configuration-based agent placement
 - Transparent local ↔ cloud communication
 - Encrypted agent-to-agent channels
+- **A2A**: Hybrid mode (mix of local/remote)
+
+### Microservices Deployment (A2A)
+- Each agent as independent HTTP service
+- Load balancing and auto-scaling per agent
+- Independent deployment and versioning
+- Cross-platform agent integration (ADK, LangGraph, etc.)
 
 ## Research Workflow
 

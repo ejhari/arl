@@ -4,6 +4,7 @@ import click
 from rich.console import Console
 
 from arl import __version__
+from arl.cli.a2a_commands import a2a_cli
 from arl.cli.paper_commands import paper_group
 from arl.cli.project_commands import project_group
 from arl.cli.research_commands import research_group
@@ -28,6 +29,7 @@ cli.add_command(project_group)
 cli.add_command(session_group)
 cli.add_command(paper_group)
 cli.add_command(research_group)
+cli.add_command(a2a_cli)
 
 
 @cli.command()

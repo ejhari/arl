@@ -65,6 +65,7 @@ Access at http://localhost:5173
 - **Multi-domain support**: Computer Science, Biology, Physics, General Research
 - **Provider-agnostic LLM**: Google Gemini, OpenAI, Anthropic, Azure OpenAI
 - **Hybrid deployment**: Run locally or on Google Cloud
+- **A2A Protocol**: Standardized agent-to-agent communication for microservices architecture
 - **Interactive collaboration**: Human-in-the-loop at any stage
 - **Reproducible research**: Complete experiment versioning and artifact management
 - **Docker sandbox**: Secure isolated execution environment
@@ -75,6 +76,10 @@ Access at http://localhost:5173
 - [Installation Guide](docs/installation.md) - Setup and prerequisites
 - [Quickstart Guide](docs/quickstart.md) - Get running in 5 minutes
 - [User Guide](docs/user-guide.md) - Complete feature documentation
+
+### Architecture & Deployment
+- [Architecture Overview](docs/architecture.md) - System design and components
+- [A2A Protocol Guide](docs/a2a-protocol.md) - Agent-to-agent communication and microservices
 
 ### Provider Setup
 - [Azure OpenAI Setup](docs/azure-setup.md) - Configure Azure OpenAI
