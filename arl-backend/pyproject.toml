@@ -17,7 +17,7 @@ dependencies = [
     "attrs==25.4.0",
     "bcrypt==4.0.1",
     "bidict==0.23.1",
-    "black==23.12.0",
+    "black==24.3.0",
     "certifi==2025.11.12",
     "cffi==2.0.0",
     "click==8.3.1",
