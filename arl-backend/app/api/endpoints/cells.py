@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
+from sqlalchemy.orm import selectinload
 from typing import List
 
 from app.core.database import get_db
@@ -113,7 +114,9 @@ async def get_cell(
 ):
     """Get a specific cell with outputs"""
     result = await db.execute(
-        select(Cell).where(Cell.id == cell_id)
+        select(Cell)
+        .options(selectinload(Cell.outputs))
+        .where(Cell.id == cell_id)
     )
     cell = result.scalar_one_or_none()
 

@@ -53,6 +53,9 @@ class AuthAPI {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        this.handleUnauthorized();
+      }
       const error = await response.json();
       throw new Error(error.detail || 'Token refresh failed');
     }
@@ -68,11 +71,19 @@ class AuthAPI {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        this.handleUnauthorized();
+      }
       const error = await response.json();
       throw new Error(error.detail || 'Failed to fetch user');
     }
 
     return response.json();
+  }
+
+  private handleUnauthorized(): void {
+    localStorage.removeItem('auth-storage');
+    window.location.href = '/login';
   }
 }
 

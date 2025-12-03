@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Share2 } from 'lucide-react';
+import { Share2, Plus, FolderKanban } from 'lucide-react';
 
 export function DashboardPage() {
   const navigate = useNavigate();

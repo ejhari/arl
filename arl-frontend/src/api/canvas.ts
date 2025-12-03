@@ -36,6 +36,12 @@ class CanvasAPI {
     });
 
     if (!response.ok) {
+      // Handle 401 Unauthorized - auto logout
+      if (response.status === 401) {
+        this.handleUnauthorized();
+        throw new Error('Session expired. Please login again.');
+      }
+
       const error = await response.json().catch(() => ({ detail: 'Request failed' }));
       throw new Error(error.detail || 'Request failed');
     }
@@ -45,6 +51,14 @@ class CanvasAPI {
     }
 
     return response.json();
+  }
+
+  private handleUnauthorized(): void {
+    // Clear auth storage
+    localStorage.removeItem('auth-storage');
+
+    // Redirect to login
+    window.location.href = '/login';
   }
 
   private getAccessToken(): string | null {

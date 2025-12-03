@@ -42,13 +42,20 @@ arl research run --project <id> --request "Test hypothesis" --auto
 **Terminal 1 - Backend:**
 ```bash
 cd arl-backend
-python -m venv venv && source venv/bin/activate
-uv pip install -r requirements.txt
-cp .env.example .env  # Configure settings
-alembic upgrade head
-sudo systemctl start redis  # Or: brew services start redis
-uvicorn app.main:app --reload --port 8000
+
+# Start Docker services (PostgreSQL + Redis)
+sudo systemctl start docker  # If not already running
+docker compose up -d
+
+# Install dependencies and run migrations
+uv sync
+.venv/bin/alembic upgrade head
+
+# Start backend
+.venv/bin/uvicorn app.main:app --reload
 ```
+
+See [arl-backend/SETUP.md](arl-backend/SETUP.md) for detailed setup instructions.
 
 **Terminal 2 - Frontend:**
 ```bash

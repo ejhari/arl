@@ -55,6 +55,7 @@ logs/
 .env.local
 projects/
 sessions/
+storage/
 
 # Node.js / Frontend
 node_modules/

@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
+from sqlalchemy.orm import selectinload
 from typing import List
 
 from app.core.database import get_db
@@ -72,7 +73,9 @@ async def get_project(
 ):
     """Get a specific project with cells"""
     result = await db.execute(
-        select(Project).where(Project.id == project_id)
+        select(Project)
+        .options(selectinload(Project.cells))
+        .where(Project.id == project_id)
     )
     project = result.scalar_one_or_none()
 

@@ -66,13 +66,22 @@ export const useAuthStore = create<AuthState>()(
         // Disconnect WebSocket on logout
         socketManager.disconnect();
 
+        // Clear all auth state
         set({
           user: null,
           accessToken: null,
           refreshToken: null,
           isAuthenticated: false,
           error: null,
+          isLoading: false,
         });
+
+        // Force clear persisted storage (belt and suspenders)
+        try {
+          localStorage.removeItem('auth-storage');
+        } catch (error) {
+          console.error('Failed to clear auth storage:', error);
+        }
       },
 
       refreshAccessToken: async () => {

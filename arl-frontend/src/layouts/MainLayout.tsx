@@ -1,41 +1,31 @@
-import { Outlet, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/authStore';
-import { Button } from '@/components/ui/button';
+import { Outlet } from 'react-router-dom';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
+import { CommandPalette } from '@/components/layout/CommandPalette';
+import { UserMenu } from '@/components/UserMenu';
 
 export function MainLayout() {
-  const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-6">
-            <h1 className="text-xl font-bold">ARL</h1>
-            <nav className="flex gap-4">
-              <a href="/dashboard" className="text-sm font-medium hover:text-primary">
-                Dashboard
-              </a>
-            </nav>
+      <Sidebar />
+
+      <div className="pl-64 transition-all duration-300">
+        {/* Top Header */}
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-card px-6">
+          <div className="flex flex-1 items-center gap-4">
+            <Breadcrumbs />
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              {user?.full_name || user?.username}
-            </span>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              Logout
-            </Button>
+            <CommandPalette />
+            <UserMenu />
           </div>
-        </div>
-      </header>
-      <main className="container mx-auto p-4">
-        <Outlet />
-      </main>
+        </header>
+
+        {/* Main Content */}
+        <main className="p-6">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

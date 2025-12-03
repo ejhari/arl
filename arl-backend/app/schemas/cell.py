@@ -18,7 +18,7 @@ class CellBase(BaseModel):
     """Base cell schema"""
     cell_type: CellType
     content: Optional[str] = None
-    metadata: Optional[dict[str, Any]] = None
+    metadata: Optional[dict[str, Any]] = Field(default=None, validation_alias="cell_metadata")
     position: int = 0
 
 
@@ -38,7 +38,7 @@ class CellOutputBase(BaseModel):
     """Base cell output schema"""
     output_type: str
     content: Optional[str] = None
-    metadata: Optional[dict[str, Any]] = None
+    metadata: Optional[dict[str, Any]] = Field(default=None, validation_alias="output_metadata")
 
 
 class CellOutputCreate(CellOutputBase):

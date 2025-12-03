@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File,
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from typing import List
 import io
 
@@ -121,7 +122,9 @@ async def get_document(
 ):
     """Get document with annotations"""
     result = await db.execute(
-        select(Document).where(Document.id == document_id)
+        select(Document)
+        .options(selectinload(Document.annotations))
+        .where(Document.id == document_id)
     )
     document = result.scalar_one_or_none()
 

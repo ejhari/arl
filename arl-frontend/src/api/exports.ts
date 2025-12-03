@@ -42,7 +42,7 @@ class ExportsAPI {
     return response.json();
   }
 
-  async getExportStatus(exportId: string): Promise<ExportJob> {
+  async getExport(exportId: string): Promise<ExportJob> {
     const token = this.getAccessToken();
 
     const response = await fetch(`${this.baseURL}/api/v1/exports/${exportId}`, {
@@ -59,15 +59,43 @@ class ExportsAPI {
     return response.json();
   }
 
+  async getExportStatus(exportId: string): Promise<ExportJob> {
+    return this.getExport(exportId);
+  }
+
+  async downloadExport(exportId: string): Promise<void> {
+    const token = this.getAccessToken();
+    const url = `${this.baseURL}/api/v1/exports/${exportId}/download`;
+
+    const response = await fetch(url, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to download export');
+    }
+
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = `export-${exportId}`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(downloadUrl);
+    document.body.removeChild(a);
+  }
+
   getDownloadUrl(exportId: string): string {
     const token = this.getAccessToken();
     return `${this.baseURL}/api/v1/exports/${exportId}/download${token ? `?token=${token}` : ''}`;
   }
 
-  async listExports(projectId: string): Promise<ExportJob[]> {
+  async listExports(projectId?: string): Promise<ExportJob[]> {
     const token = this.getAccessToken();
+    const query = projectId ? `?project_id=${projectId}` : '';
 
-    const response = await fetch(`${this.baseURL}/api/v1/exports?project_id=${projectId}`, {
+    const response = await fetch(`${this.baseURL}/api/v1/exports${query}`, {
       headers: {
         ...(token && { Authorization: `Bearer ${token}` }),
       },
