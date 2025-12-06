@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { canvasAPI } from '@/api/canvas';
 import type { Project } from '@/types/canvas';
+import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -12,6 +13,7 @@ export function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   useEffect(() => {
     loadProjects();
@@ -48,12 +50,10 @@ export function ProjectsPage() {
             Manage your research projects and notebooks
           </p>
         </div>
-        <Link to="/dashboard">
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            New Project
-          </Button>
-        </Link>
+        <Button onClick={() => setShowCreateDialog(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          New Project
+        </Button>
       </div>
 
       {/* Error Display */}
@@ -73,12 +73,10 @@ export function ProjectsPage() {
           <p className="text-muted-foreground mb-4 max-w-sm">
             Create your first project to start working on your research
           </p>
-          <Link to="/dashboard">
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Your First Project
-            </Button>
-          </Link>
+          <Button onClick={() => setShowCreateDialog(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Your First Project
+          </Button>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -116,6 +114,12 @@ export function ProjectsPage() {
           ))}
         </div>
       )}
+
+      {/* Create Project Dialog */}
+      <CreateProjectDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+      />
     </div>
   );
 }

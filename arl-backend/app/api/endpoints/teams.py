@@ -37,26 +37,15 @@ async def list_teams(
     # Get teams where user is a member
     result = await db.execute(
         select(Team)
-        .join(TeamMember)
+        .join(TeamMember, Team.id == TeamMember.team_id)
         .where(TeamMember.user_id == current_user.id)
     )
     member_teams = result.scalars().all()
 
     # Combine and deduplicate
-    all_teams = {team.id: team for team in owned_teams + member_teams}.values()
+    all_teams = list({team.id: team for team in owned_teams + member_teams}.values())
 
-    # Add member counts
-    teams_with_counts = []
-    for team in all_teams:
-        result = await db.execute(
-            select(TeamMember).where(TeamMember.team_id == team.id)
-        )
-        member_count = len(result.scalars().all())
-        team_dict = TeamResponse.model_validate(team).model_dump()
-        team_dict['member_count'] = member_count
-        teams_with_counts.append(TeamResponse(**team_dict))
-
-    return teams_with_counts
+    return [TeamResponse.model_validate(team) for team in all_teams]
 
 
 @router.post("", response_model=TeamResponse, status_code=status.HTTP_201_CREATED)
@@ -85,7 +74,16 @@ async def create_team(
     db.add(member)
     await db.commit()
 
-    return TeamResponse.model_validate(team)
+    # Return with member_count = 1 (owner is the first member)
+    return TeamResponse(
+        id=str(team.id),
+        name=team.name,
+        description=team.description,
+        owner_id=str(team.owner_id),
+        created_at=team.created_at,
+        updated_at=team.updated_at,
+        member_count=1
+    )
 
 
 @router.get("/{team_id}", response_model=TeamWithMembers)

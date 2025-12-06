@@ -3,7 +3,9 @@ import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { ProjectsPage } from '@/pages/ProjectsPage';
+import { DocumentsLandingPage } from '@/pages/DocumentsLandingPage';
 import { DocumentsPage } from '@/pages/DocumentsPage';
+import { DocumentViewerPage } from '@/pages/DocumentViewerPage';
 import { CanvasPage } from '@/pages/CanvasPage';
 import { TeamsPage } from '@/pages/TeamsPage';
 import { TeamDetailPage } from '@/pages/TeamDetailPage';
@@ -54,7 +56,15 @@ export const router = createBrowserRouter([
       },
       {
         path: 'documents',
+        element: <DocumentsLandingPage />,
+      },
+      {
+        path: 'documents/:projectId',
         element: <DocumentsPage />,
+      },
+      {
+        path: 'documents/:projectId/view/:documentId',
+        element: <DocumentViewerPage />,
       },
       {
         path: 'teams',

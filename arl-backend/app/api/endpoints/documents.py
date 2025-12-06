@@ -1,15 +1,15 @@
 """Document endpoints"""
 
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
-from typing import List
+from typing import List, Optional
 import io
 
 from app.core.database import get_db
-from app.core.security import get_current_user
+from app.core.security import get_current_user, decode_token
 from app.core.storage import file_storage
 from app.models.user import User
 from app.models.project import Project
@@ -143,10 +143,47 @@ async def get_document(
 @router.get("/{document_id}/download")
 async def download_document(
     document_id: str,
-    current_user: User = Depends(get_current_user),
+    token: Optional[str] = Query(None, description="JWT token for authentication (alternative to header)"),
     db: AsyncSession = Depends(get_db),
 ):
-    """Download document file"""
+    """Download document file.
+
+    Supports authentication via:
+    - Query parameter: ?token=<jwt_token> (for browser downloads)
+    - Authorization header: Bearer <jwt_token>
+    """
+    # Validate token from query parameter
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required. Provide token as query parameter.",
+        )
+
+    # Decode and validate token
+    payload = decode_token(token)
+    if payload.get("type") != "access":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token type",
+        )
+
+    user_id = payload.get("sub")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token payload",
+        )
+
+    # Verify user exists
+    user_result = await db.execute(select(User).where(User.id == user_id))
+    user = user_result.scalar_one_or_none()
+    if not user or not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found or inactive",
+        )
+
+    # Get document
     result = await db.execute(
         select(Document).where(Document.id == document_id)
     )
@@ -159,7 +196,7 @@ async def download_document(
         )
 
     # Check project access
-    await check_project_access(document.project_id, current_user.id, db)
+    await check_project_access(document.project_id, user_id, db)
 
     # Read file
     try:
@@ -248,6 +285,47 @@ async def create_annotation(
     )
 
     db.add(annotation)
+    await db.commit()
+    await db.refresh(annotation)
+
+    return AnnotationResponse.model_validate(annotation)
+
+
+@router.patch("/annotations/{annotation_id}", response_model=AnnotationResponse)
+async def update_annotation(
+    annotation_id: str,
+    annotation_data: AnnotationUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update annotation (e.g., add reply to comment thread)"""
+    result = await db.execute(
+        select(Annotation).where(Annotation.id == annotation_id)
+    )
+    annotation = result.scalar_one_or_none()
+
+    if not annotation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Annotation not found",
+        )
+
+    # Verify user has access to the document's project
+    doc_result = await db.execute(
+        select(Document).where(Document.id == annotation.document_id)
+    )
+    document = doc_result.scalar_one_or_none()
+    if document:
+        await check_project_access(document.project_id, current_user.id, db)
+
+    # Update fields if provided
+    if annotation_data.content is not None:
+        annotation.content = annotation_data.content
+    if annotation_data.position is not None:
+        annotation.position = annotation_data.position
+    if annotation_data.color is not None:
+        annotation.color = annotation_data.color
+
     await db.commit()
     await db.refresh(annotation)
 

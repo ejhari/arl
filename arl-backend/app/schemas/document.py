@@ -16,10 +16,11 @@ class DocumentCreate(DocumentBase):
     project_id: str
 
 
-class DocumentResponse(DocumentBase):
+class DocumentResponse(BaseModel):
     """Document response schema"""
     id: str
     project_id: str
+    title: str
     file_name: str
     file_type: str
     file_size: int
@@ -28,9 +29,12 @@ class DocumentResponse(DocumentBase):
     uploaded_by: str
     created_at: datetime
     updated_at: datetime
+    # Map doc_metadata column to metadata field in response
+    metadata: Optional[dict[str, Any]] = Field(default=None, validation_alias="doc_metadata")
 
     class Config:
         from_attributes = True
+        populate_by_name = True
 
 
 class AnnotationBase(BaseModel):

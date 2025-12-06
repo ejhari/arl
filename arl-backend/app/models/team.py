@@ -48,7 +48,7 @@ class TeamMember(Base):
 
     team_id = Column(UUID(as_uuid=False), ForeignKey("teams.id"), primary_key=True)
     user_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), primary_key=True)
-    role = Column(SQLEnum(TeamRole), nullable=False, default=TeamRole.MEMBER)
+    role = Column(SQLEnum(TeamRole, name='teamrole', native_enum=True, values_callable=lambda x: [e.value for e in x]), nullable=False, default=TeamRole.MEMBER)
     joined_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     # Relationships

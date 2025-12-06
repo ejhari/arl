@@ -1,164 +1,74 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { useCanvasStore } from '@/stores/canvasStore';
-import { ShareDialog } from '@/components/ShareDialog';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Share2, Plus, FolderKanban } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calendar, TrendingUp, Folder } from 'lucide-react';
 
 export function DashboardPage() {
-  const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { projects, loadProjects, createProject } = useCanvasStore();
-  const [isCreating, setIsCreating] = useState(false);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [projectName, setProjectName] = useState('');
-  const [projectDescription, setProjectDescription] = useState('');
-  const [shareProjectId, setShareProjectId] = useState<string | null>(null);
-  const [shareProjectName, setShareProjectName] = useState('');
+  const { projects, loadProjects } = useCanvasStore();
 
   useEffect(() => {
     loadProjects();
-  }, []);
+  }, [loadProjects]);
 
-  const handleCreateProject = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!projectName.trim()) return;
-
-    setIsCreating(true);
-    try {
-      const project = await createProject({
-        name: projectName,
-        description: projectDescription || undefined,
-      });
-      setProjectName('');
-      setProjectDescription('');
-      setShowCreateForm(false);
-      navigate(`/canvas/${project.id}`);
-    } catch (err) {
-      console.error('Failed to create project:', err);
-    } finally {
-      setIsCreating(false);
-    }
-  };
+  // Calculate summary stats
+  const totalProjects = projects.length;
+  const recentProjects = projects.slice(0, 3);
+  const todayDate = new Date().toLocaleDateString();
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-          <p className="text-muted-foreground">
-            Welcome back, {user?.full_name || user?.username}!
-          </p>
-        </div>
-        <Button onClick={() => setShowCreateForm(!showCreateForm)}>
-          {showCreateForm ? 'Cancel' : '+ New Project'}
-        </Button>
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <p className="text-muted-foreground mt-1">
+          Welcome back, {user?.full_name || user?.username}!
+        </p>
       </div>
 
-      {/* Create Project Form */}
-      {showCreateForm && (
+      {/* Summary Cards */}
+      <div className="grid gap-4 md:grid-cols-3">
         <Card>
-          <CardHeader>
-            <CardTitle>Create New Project</CardTitle>
-            <CardDescription>Start a new research project</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
+            <Folder className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleCreateProject} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Project Name</Label>
-                <Input
-                  id="name"
-                  value={projectName}
-                  onChange={(e) => setProjectName(e.target.value)}
-                  placeholder="My Research Project"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description (optional)</Label>
-                <Input
-                  id="description"
-                  value={projectDescription}
-                  onChange={(e) => setProjectDescription(e.target.value)}
-                  placeholder="What is this project about?"
-                />
-              </div>
-              <Button type="submit" disabled={isCreating}>
-                {isCreating ? 'Creating...' : 'Create Project'}
-              </Button>
-            </form>
+            <div className="text-2xl font-bold">{totalProjects}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Active research projects
+            </p>
           </CardContent>
         </Card>
-      )}
 
-      {/* Projects List */}
-      <div>
-        <h3 className="text-xl font-semibold mb-4">Your Projects</h3>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <Card key={project.id} className="hover:border-primary transition-colors">
-              <CardHeader>
-                <CardTitle>{project.name}</CardTitle>
-                {project.description && (
-                  <CardDescription>{project.description}</CardDescription>
-                )}
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Updated {new Date(project.updated_at).toLocaleDateString()}
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigate(`/canvas/${project.id}`)}
-                    className="flex-1"
-                  >
-                    Open
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShareProjectId(project.id);
-                      setShareProjectName(project.name);
-                    }}
-                  >
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{recentProjects.length}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Projects updated recently
+            </p>
+          </CardContent>
+        </Card>
 
-          {projects.length === 0 && !showCreateForm && (
-            <Card className="col-span-full">
-              <CardContent className="p-6 text-center">
-                <p className="text-muted-foreground">
-                  No projects yet. Create your first project to get started!
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Today</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{todayDate}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Current date
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Share Dialog */}
-      {shareProjectId && (
-        <ShareDialog
-          projectId={shareProjectId}
-          projectName={shareProjectName}
-          onClose={() => {
-            setShareProjectId(null);
-            setShareProjectName('');
-          }}
-        />
-      )}
     </div>
   );
 }

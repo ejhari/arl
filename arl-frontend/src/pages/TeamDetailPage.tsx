@@ -4,7 +4,7 @@ import { useTeamStore } from '@/stores/teamStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Tabs } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { TeamMembersList } from '@/components/teams/TeamMembersList';
 import { InviteMemberDialog } from '@/components/teams/InviteMemberDialog';
@@ -94,46 +94,31 @@ export function TeamDetailPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <div className="border-b border-border">
-          <div className="flex gap-4">
-            <button
-              onClick={() => setActiveTab('members')}
-              className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === 'members'
-                  ? 'border-primary text-foreground'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Users className="h-4 w-4 inline mr-2" />
-              Members
-            </button>
-            {isOwner && (
-              <button
-                onClick={() => setActiveTab('settings')}
-                className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 ${
-                  activeTab === 'settings'
-                    ? 'border-primary text-foreground'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Settings className="h-4 w-4 inline mr-2" />
-                Settings
-              </button>
-            )}
-          </div>
-        </div>
+        <TabsList className="w-full justify-start">
+          <TabsTrigger value="members" className="gap-2">
+            <Users className="h-4 w-4" />
+            Members
+          </TabsTrigger>
+          {isOwner && (
+            <TabsTrigger value="settings" className="gap-2">
+              <Settings className="h-4 w-4" />
+              Settings
+            </TabsTrigger>
+          )}
+        </TabsList>
 
-        <div className="mt-6">
-          {activeTab === 'members' && (
-            <TeamMembersList
-              team={currentTeam}
-              canManage={canManageMembers}
-            />
-          )}
-          {activeTab === 'settings' && isOwner && (
+        <TabsContent value="members">
+          <TeamMembersList
+            team={currentTeam}
+            canManage={canManageMembers}
+          />
+        </TabsContent>
+
+        {isOwner && (
+          <TabsContent value="settings">
             <TeamSettings team={currentTeam} />
-          )}
-        </div>
+          </TabsContent>
+        )}
       </Tabs>
 
       {/* Invite Member Dialog */}

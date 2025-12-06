@@ -3,7 +3,7 @@ import type { TeamWithMembers, TeamMember, TeamRole } from '@/types/team';
 import { useTeamStore } from '@/stores/teamStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Card } from '@/components/ui/card';
-import { Avatar } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -82,11 +82,9 @@ export function TeamMembersList({ team, canManage }: TeamMembersListProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Avatar>
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-medium">
-                      {member.username[0].toUpperCase()}
-                    </span>
-                  </div>
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {member.username[0].toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
 
                 <div>
@@ -106,7 +104,7 @@ export function TeamMembersList({ team, canManage }: TeamMembersListProps) {
                 {canModify && !updatingMember ? (
                   <Select
                     value={member.role}
-                    onChange={(e) =>
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                       handleRoleChange(member, e.target.value as TeamRole)
                     }
                     disabled={isLoading}

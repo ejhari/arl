@@ -30,7 +30,7 @@ export function useTouch(
 ) {
   const opts = { ...DEFAULT_OPTIONS, ...options }
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null)
-  const longPressTimer = useRef<NodeJS.Timeout | null>(null)
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastTap = useRef<number>(0)
 
   useEffect(() => {

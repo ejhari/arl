@@ -135,6 +135,26 @@ class DocumentsAPI {
       throw new Error(error.detail || 'Failed to delete annotation');
     }
   }
+
+  async updateAnnotation(annotationId: string, data: { content?: string; color?: string; position?: Record<string, number> }): Promise<Annotation> {
+    const token = this.getAccessToken();
+
+    const response = await fetch(`${this.baseURL}/api/v1/documents/annotations/${annotationId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to update annotation' }));
+      throw new Error(error.detail || 'Failed to update annotation');
+    }
+
+    return response.json();
+  }
 }
 
 export const documentsAPI = new DocumentsAPI(API_BASE_URL);

@@ -2,9 +2,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
   Home,
-  FileText,
   Users,
   FolderKanban,
+  FileText,
   Settings,
   ChevronLeft,
   ChevronRight,

@@ -45,7 +45,7 @@ export function LiveRegion({
 export function useLiveAnnouncement() {
   const [message, setMessage] = useState('')
 
-  const announce = (text: string, politeness: 'polite' | 'assertive' = 'polite') => {
+  const announce = (text: string, _politeness: 'polite' | 'assertive' = 'polite') => {
     setMessage('')
     setTimeout(() => setMessage(text), 100)
   }
