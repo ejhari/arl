@@ -156,6 +156,19 @@ class SessionsAPI {
   async listProjectMemories(projectId: string): Promise<ProjectMemory[]> {
     return this.request<ProjectMemory[]>(`/api/v1/projects/${projectId}/memories`);
   }
+
+  // Session Execution operations
+  async executeSession(
+    projectId: string,
+    sessionId: string
+  ): Promise<{ status: string; message: string; session_id: string; details: unknown }> {
+    return this.request<{ status: string; message: string; session_id: string; details: unknown }>(
+      `/api/v1/projects/${projectId}/sessions/${sessionId}/execute`,
+      {
+        method: 'POST',
+      }
+    );
+  }
 }
 
 export const sessionsAPI = new SessionsAPI(API_BASE_URL);

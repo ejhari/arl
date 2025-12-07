@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSessionStore } from '@/stores/sessionStore';
+import { useSessionWebSocket } from '@/hooks/useWebSocket';
+import { AgentActivitySidebar } from '@/components/sessions/AgentActivitySidebar';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -30,6 +32,7 @@ import {
   Clock,
   Play,
   Plus,
+  Rocket,
 } from 'lucide-react';
 import type { SessionStatus, SessionMemory, SessionAgent } from '@/types/session';
 
@@ -67,6 +70,10 @@ export default function SessionDetailPage() {
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [newMemoryContent, setNewMemoryContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isExecuting, setIsExecuting] = useState(false);
+
+  // WebSocket connection for real-time agent activity
+  const { activities, isConnected, isAuthenticated } = useSessionWebSocket(sessionId);
 
   useEffect(() => {
     if (projectId && sessionId) {
@@ -109,6 +116,24 @@ export default function SessionDetailPage() {
       console.error('Failed to add memory:', err);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleExecuteSession = async () => {
+    if (!projectId || !sessionId) return;
+    setIsExecuting(true);
+    try {
+      const { sessionsAPI } = await import('@/api/sessions');
+      const result = await sessionsAPI.executeSession(projectId, sessionId);
+      console.log('Session execution result:', result);
+
+      // Refresh session data
+      await fetchSession(projectId, sessionId);
+    } catch (err) {
+      console.error('Failed to execute session:', err);
+      alert('Failed to execute session. Please try again.');
+    } finally {
+      setIsExecuting(false);
     }
   };
 
@@ -156,7 +181,9 @@ export default function SessionDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex gap-6 h-[calc(100vh-120px)]">
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto space-y-6 pr-4">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
@@ -194,10 +221,27 @@ export default function SessionDetailPage() {
         <div className="flex items-center gap-2">
           {currentSession.status === 'active' && (
             <>
+              <Button
+                onClick={handleExecuteSession}
+                disabled={isExecuting}
+                variant="default"
+              >
+                {isExecuting ? (
+                  <>
+                    <LoadingSpinner size="sm" className="mr-2" />
+                    Executing...
+                  </>
+                ) : (
+                  <>
+                    <Rocket className="h-4 w-4 mr-2" />
+                    Execute Workflow
+                  </>
+                )}
+              </Button>
               <Link to={`/canvas/${projectId}?session=${sessionId}`}>
-                <Button>
+                <Button variant="outline">
                   <Play className="h-4 w-4 mr-2" />
-                  Continue in Canvas
+                  Canvas
                 </Button>
               </Link>
               <Button variant="outline" onClick={() => setShowArchiveDialog(true)}>
@@ -375,6 +419,15 @@ export default function SessionDetailPage() {
           )}
         </CardContent>
       </Card>
+      </div>
+
+      {/* Right Sidebar - Agent Activity */}
+      <div className="w-96">
+        <AgentActivitySidebar
+          sessionId={sessionId || ''}
+          activities={activities}
+        />
+      </div>
 
       {/* Archive Dialog */}
       <Dialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>

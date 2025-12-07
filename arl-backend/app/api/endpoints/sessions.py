@@ -23,6 +23,7 @@ from app.schemas.session import (
     SessionAgentResponse,
     SessionAgentWithDetails,
 )
+from app.services.session_orchestrator import SessionOrchestrator
 
 router = APIRouter()
 
@@ -445,3 +446,141 @@ async def list_project_memories(
     memories = result.scalars().all()
 
     return [ProjectMemoryResponse.model_validate(m) for m in memories]
+
+
+# Session Execution endpoints
+@router.post("/projects/{project_id}/sessions/{session_id}/execute")
+async def execute_session(
+    project_id: str,
+    session_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Execute the research workflow for a session.
+
+    This triggers the orchestrator to coordinate all enabled agents
+    to execute the full research pipeline based on the initial prompt.
+    """
+    # Verify session exists and belongs to project
+    result = await db.execute(
+        select(Session).where(
+            Session.id == session_id,
+            Session.project_id == project_id,
+        )
+    )
+    session = result.scalar_one_or_none()
+
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Session not found",
+        )
+
+    if session.status == "archived":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot execute archived session",
+        )
+
+    if not session.initial_prompt:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Session has no initial prompt",
+        )
+
+    # Create orchestrator
+    orchestrator = SessionOrchestrator(
+        db=db,
+        session_id=session_id,
+        user_id=str(current_user.id),
+    )
+
+    try:
+        # Initialize orchestrator
+        await orchestrator.initialize()
+
+        # Execute workflow (this runs asynchronously and emits WebSocket events)
+        # Note: In production, this should be executed in a background task
+        # For now, we'll execute it directly
+        result = await orchestrator.execute_research_workflow(session.initial_prompt)
+
+        return {
+            "status": "success",
+            "message": "Research workflow completed",
+            "session_id": session_id,
+            "details": result,
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Workflow execution failed: {str(e)}",
+        )
+    finally:
+        await orchestrator.close()
+
+
+@router.post("/projects/{project_id}/sessions/{session_id}/execute-agent")
+async def execute_single_agent(
+    project_id: str,
+    session_id: str,
+    agent_id: str,
+    skill_name: str,
+    input_data: dict,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Execute a single agent skill within a session.
+
+    This allows manual triggering of individual agents for testing
+    or custom workflows.
+    """
+    # Verify session exists
+    result = await db.execute(
+        select(Session).where(
+            Session.id == session_id,
+            Session.project_id == project_id,
+        )
+    )
+    session = result.scalar_one_or_none()
+
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Session not found",
+        )
+
+    # Create orchestrator
+    orchestrator = SessionOrchestrator(
+        db=db,
+        session_id=session_id,
+        user_id=str(current_user.id),
+    )
+
+    try:
+        # Initialize orchestrator
+        await orchestrator.initialize()
+
+        # Execute agent
+        result = await orchestrator.execute_single_agent(
+            agent_id=agent_id,
+            skill_name=skill_name,
+            input_data=input_data,
+        )
+
+        return {
+            "status": "success",
+            "agent_id": agent_id,
+            "skill_name": skill_name,
+            "result": result,
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Agent execution failed: {str(e)}",
+        )
+    finally:
+        await orchestrator.close()

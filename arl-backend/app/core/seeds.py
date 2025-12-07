@@ -11,7 +11,7 @@ from app.models.agent import Agent
 # System agents following A2A protocol
 SYSTEM_AGENTS = [
     {
-        "name": "hypothesis-agent",
+        "name": "hypothesis_agent",
         "display_name": "Hypothesis Agent",
         "description": "Generates and refines research hypotheses based on provided context and data. Uses structured reasoning to propose testable hypotheses.",
         "agent_type": "system",
@@ -20,7 +20,7 @@ SYSTEM_AGENTS = [
         "version": "1.0.0",
         "protocol_version": "0.3",
         "agent_card": {
-            "name": "hypothesis-agent",
+            "name": "hypothesis_agent",
             "description": "Generates and refines research hypotheses",
             "url": None,
             "provider": {"organization": "ARL", "url": None},
@@ -55,7 +55,7 @@ SYSTEM_AGENTS = [
         }
     },
     {
-        "name": "experiment-agent",
+        "name": "experiment_agent",
         "display_name": "Experiment Agent",
         "description": "Designs experiments and research methodologies. Creates experimental protocols and suggests appropriate statistical methods.",
         "agent_type": "system",
@@ -64,7 +64,7 @@ SYSTEM_AGENTS = [
         "version": "1.0.0",
         "protocol_version": "0.3",
         "agent_card": {
-            "name": "experiment-agent",
+            "name": "experiment_agent",
             "description": "Designs experiments and research methodologies",
             "url": None,
             "provider": {"organization": "ARL", "url": None},
@@ -94,7 +94,7 @@ SYSTEM_AGENTS = [
         }
     },
     {
-        "name": "code-gen-agent",
+        "name": "code_gen_agent",
         "display_name": "Code Generation Agent",
         "description": "Generates code for data analysis, visualization, and automation. Supports Python, R, and SQL code generation.",
         "agent_type": "system",
@@ -103,7 +103,7 @@ SYSTEM_AGENTS = [
         "version": "1.0.0",
         "protocol_version": "0.3",
         "agent_card": {
-            "name": "code-gen-agent",
+            "name": "code_gen_agent",
             "description": "Generates code for data analysis and automation",
             "url": None,
             "provider": {"organization": "ARL", "url": None},
@@ -139,7 +139,7 @@ SYSTEM_AGENTS = [
         }
     },
     {
-        "name": "execution-agent",
+        "name": "execution_agent",
         "display_name": "Execution Agent",
         "description": "Executes code in sandboxed environments. Manages compute resources and returns execution results with logs.",
         "agent_type": "system",
@@ -148,7 +148,7 @@ SYSTEM_AGENTS = [
         "version": "1.0.0",
         "protocol_version": "0.3",
         "agent_card": {
-            "name": "execution-agent",
+            "name": "execution_agent",
             "description": "Executes code in sandboxed environments",
             "url": None,
             "provider": {"organization": "ARL", "url": None},
@@ -178,7 +178,7 @@ SYSTEM_AGENTS = [
         }
     },
     {
-        "name": "analysis-agent",
+        "name": "analysis_agent",
         "display_name": "Analysis Agent",
         "description": "Analyzes data and results. Performs statistical analysis, pattern recognition, and generates insights from research data.",
         "agent_type": "system",
@@ -187,7 +187,7 @@ SYSTEM_AGENTS = [
         "version": "1.0.0",
         "protocol_version": "0.3",
         "agent_card": {
-            "name": "analysis-agent",
+            "name": "analysis_agent",
             "description": "Analyzes data and generates insights",
             "url": None,
             "provider": {"organization": "ARL", "url": None},
@@ -223,7 +223,7 @@ SYSTEM_AGENTS = [
         }
     },
     {
-        "name": "literature-agent",
+        "name": "literature_agent",
         "display_name": "Literature Review Agent",
         "description": "Searches and analyzes academic literature. Summarizes papers, identifies relevant work, and helps with citation management.",
         "agent_type": "system",
@@ -232,7 +232,7 @@ SYSTEM_AGENTS = [
         "version": "1.0.0",
         "protocol_version": "0.3",
         "agent_card": {
-            "name": "literature-agent",
+            "name": "literature_agent",
             "description": "Searches and analyzes academic literature",
             "url": None,
             "provider": {"organization": "ARL", "url": None},

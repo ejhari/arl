@@ -70,12 +70,8 @@ cd arl-frontend
 # Install Node.js dependencies
 npm install
 
-# Configure API endpoint
-echo "VITE_API_BASE_URL=http://localhost:8000" > .env
-
-# Optional: Configure other settings
-# VITE_APP_TITLE=ARL Research Lab
-# VITE_ENABLE_ANALYTICS=false
+# Configure environment
+cp .env.example .env
 ```
 
 ### Redis Setup (Required for Backend)
@@ -234,22 +230,18 @@ npm run dev
 
 ### Environment Variables
 
-Create `.env` file in project root:
+Configure environment in each component directory:
 
+**Backend (`arl-backend/.env`):**
 ```bash
-# LLM Provider
-GOOGLE_API_KEY=your-key
-DEFAULT_LLM_PROVIDER=google
+cp .env.example .env
+# Edit with your database, Redis, and LLM API keys
+```
 
-# Database
-DATABASE_URL=sqlite:///./data/arl.db
-
-# Docker
-DOCKER_ENABLED=true
-EXPERIMENT_TIMEOUT_SECONDS=600
-
-# Concurrency
-MAX_CONCURRENT_EXPERIMENTS=3
+**Frontend (`arl-frontend/.env`):**
+```bash
+cp .env.example .env
+# Edit VITE_API_URL if backend runs on different port
 ```
 
 ### Settings File

@@ -56,8 +56,8 @@ cd arl-frontend
 # Install dependencies
 npm install
 
-# Configure API endpoint
-echo "VITE_API_BASE_URL=http://localhost:8000" > .env
+# Configure environment
+cp .env.example .env
 
 # Start development server
 npm run dev
@@ -316,7 +316,7 @@ curl http://localhost:8000/health
 redis-cli ping  # Should return "PONG"
 
 # Verify frontend env
-cat arl-frontend/.env  # Should show VITE_API_BASE_URL
+cat arl-frontend/.env  # Should show VITE_API_URL
 ```
 
 ## Next Steps
