@@ -3,6 +3,7 @@ import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { ProjectsPage } from '@/pages/ProjectsPage';
+import ProjectDetailPage from '@/pages/ProjectDetailPage';
 import { DocumentsLandingPage } from '@/pages/DocumentsLandingPage';
 import { DocumentsPage } from '@/pages/DocumentsPage';
 import { DocumentViewerPage } from '@/pages/DocumentViewerPage';
@@ -11,6 +12,9 @@ import { TeamsPage } from '@/pages/TeamsPage';
 import { TeamDetailPage } from '@/pages/TeamDetailPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { OAuthCallbackPage } from '@/pages/OAuthCallbackPage';
+import AgentsSettingsPage from '@/pages/AgentsSettingsPage';
+import SessionsPage from '@/pages/SessionsPage';
+import SessionDetailPage from '@/pages/SessionDetailPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { MainLayout } from '@/layouts/MainLayout';
@@ -55,6 +59,10 @@ export const router = createBrowserRouter([
         element: <ProjectsPage />,
       },
       {
+        path: 'projects/:projectId',
+        element: <ProjectDetailPage />,
+      },
+      {
         path: 'documents',
         element: <DocumentsLandingPage />,
       },
@@ -77,6 +85,18 @@ export const router = createBrowserRouter([
       {
         path: 'canvas/:projectId',
         element: <CanvasPage />,
+      },
+      {
+        path: 'projects/:projectId/sessions',
+        element: <SessionsPage />,
+      },
+      {
+        path: 'projects/:projectId/sessions/:sessionId',
+        element: <SessionDetailPage />,
+      },
+      {
+        path: 'settings/agents',
+        element: <AgentsSettingsPage />,
       },
       {
         path: 'profile',

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { documentsAPI } from '@/api/documents';
 import type { Document } from '@/types/document';
-import { FileText, Upload, Trash2, Download, Eye, ArrowLeft } from 'lucide-react';
+import { FileText, Upload, Trash2, Download, Eye, FolderKanban } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { UploadDocumentDialog } from '@/components/documents/UploadDocumentDialog';
@@ -84,26 +84,22 @@ export function DocumentsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(`/canvas/${projectId}`)}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Project
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Documents</h1>
-            <p className="text-muted-foreground mt-1">
-              Manage and annotate your research documents
-            </p>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Documents</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage and annotate your research documents
+          </p>
         </div>
-        <Button onClick={() => setUploadDialogOpen(true)}>
-          <Upload className="h-4 w-4 mr-2" />
-          Upload Document
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setUploadDialogOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Upload Document
+          </Button>
+          <Button variant="outline" onClick={() => navigate(`/projects/${projectId}`)}>
+            <FolderKanban className="h-4 w-4 mr-2" />
+            Go to Project
+          </Button>
+        </div>
       </div>
 
       {/* Error Display */}

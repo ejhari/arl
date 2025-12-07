@@ -11,9 +11,10 @@ interface BreadcrumbItem {
 interface BreadcrumbContext {
   projectName?: string;
   documentTitle?: string;
+  sessionName?: string;
 }
 
-function getBreadcrumbs(pathname: string, context: BreadcrumbContext): BreadcrumbItem[] {
+function getBreadcrumbs(pathname: string, context: BreadcrumbContext, params: Record<string, string | undefined>): BreadcrumbItem[] {
   const segments = pathname.split('/').filter(Boolean);
   const breadcrumbs: BreadcrumbItem[] = [{ label: 'Home', href: '/dashboard' }];
 
@@ -36,9 +37,13 @@ function getBreadcrumbs(pathname: string, context: BreadcrumbContext): Breadcrum
     if (segment.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
       const prevSegment = segments[i - 1];
 
-      // Project name for canvas or documents routes
-      if (context.projectName && (prevSegment === 'canvas' || prevSegment === 'documents')) {
+      // Project name for projects, canvas or documents routes
+      if (context.projectName && (prevSegment === 'projects' || prevSegment === 'canvas' || prevSegment === 'documents')) {
         label = context.projectName;
+      }
+      // Session name
+      else if (context.sessionName && prevSegment === 'sessions') {
+        label = context.sessionName;
       }
       // Document title for view routes
       else if (context.documentTitle && prevSegment === 'view') {
@@ -60,6 +65,14 @@ function getBreadcrumbs(pathname: string, context: BreadcrumbContext): Breadcrum
       continue;
     } else if (segment === 'documents') {
       label = 'Documents';
+    } else if (segment === 'sessions') {
+      // Sessions should link to the sessions list for this project
+      const projectId = params.projectId;
+      breadcrumbs.push({
+        label: 'Sessions',
+        href: i === segments.length - 1 ? undefined : `/projects/${projectId}/sessions`,
+      });
+      continue;
     }
 
     breadcrumbs.push({
@@ -77,6 +90,7 @@ export function Breadcrumbs() {
   const { currentProject, projects, loadProject } = useCanvasStore();
   const [projectName, setProjectName] = useState<string | undefined>();
   const [documentTitle, setDocumentTitle] = useState<string | undefined>();
+  const [sessionName, setSessionName] = useState<string | undefined>();
 
   // Try to get project name from various sources
   useEffect(() => {
@@ -120,7 +134,24 @@ export function Breadcrumbs() {
     }
   }, [params.documentId]);
 
-  const breadcrumbs = getBreadcrumbs(location.pathname, { projectName, documentTitle });
+  // Try to get session name from page context
+  useEffect(() => {
+    const sessionId = params.sessionId;
+    if (sessionId) {
+      const handleSessionLoad = (event: CustomEvent<{ name: string }>) => {
+        setSessionName(event.detail.name);
+      };
+
+      window.addEventListener('session-loaded' as never, handleSessionLoad as EventListener);
+      return () => {
+        window.removeEventListener('session-loaded' as never, handleSessionLoad as EventListener);
+      };
+    } else {
+      setSessionName(undefined);
+    }
+  }, [params.sessionId]);
+
+  const breadcrumbs = getBreadcrumbs(location.pathname, { projectName, documentTitle, sessionName }, params);
 
   if (breadcrumbs.length <= 1) {
     return null;

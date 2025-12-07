@@ -22,6 +22,7 @@ from app.schemas.user import (
     UserResponse,
     RefreshTokenRequest,
     RefreshTokenResponse,
+    PasswordChange,
 )
 
 router = APIRouter()
@@ -192,3 +193,42 @@ async def get_current_user_info(
     Returns the authenticated user's profile
     """
     return UserResponse.model_validate(current_user)
+
+
+@router.post("/change-password", status_code=status.HTTP_200_OK)
+async def change_password(
+    password_data: PasswordChange,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Change user password
+
+    Requires current password verification and new password confirmation
+    """
+    # Verify current password
+    if not verify_password(password_data.current_password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect",
+        )
+
+    # Verify new passwords match
+    if password_data.new_password != password_data.confirm_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New passwords do not match",
+        )
+
+    # Verify new password is different from current
+    if verify_password(password_data.new_password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New password must be different from current password",
+        )
+
+    # Update password
+    current_user.password_hash = hash_password(password_data.new_password)
+    await db.commit()
+
+    return {"message": "Password changed successfully"}

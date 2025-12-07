@@ -81,7 +81,7 @@ export function ProjectsPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
-            <Link key={project.id} to={`/canvas/${project.id}`}>
+            <Link key={project.id} to={`/projects/${project.id}`}>
               <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer h-full">
                 <div className="flex items-start justify-between mb-4">
                   <div className="bg-primary/10 rounded-lg p-3">

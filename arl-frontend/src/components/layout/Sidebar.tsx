@@ -8,6 +8,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  Bot,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -17,6 +18,7 @@ const navigation = [
   { name: 'Projects', href: '/projects', icon: FolderKanban },
   { name: 'Documents', href: '/documents', icon: FileText },
   { name: 'Teams', href: '/teams', icon: Users },
+  { name: 'Agents', href: '/settings/agents', icon: Bot },
 ];
 
 const bottomNavigation = [

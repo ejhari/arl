@@ -8,6 +8,8 @@ from app.core.config import settings
 from app.api.router import api_router
 from app.core.redis import pubsub, close_redis_client
 from app.core.websocket import socket_app
+from app.core.database import AsyncSessionLocal
+from app.core.seeds import seed_system_agents
 
 
 @asynccontextmanager
@@ -18,6 +20,16 @@ async def lifespan(app: FastAPI):
     print("📡 Initializing Redis PubSub...")
     await pubsub.initialize()
     print("✅ Redis PubSub initialized")
+
+    # Seed system agents
+    print("🌱 Seeding system agents...")
+    async with AsyncSessionLocal() as db:
+        try:
+            agents = await seed_system_agents(db)
+            print(f"✅ Seeded {len(agents)} system agents")
+        except Exception as e:
+            print(f"⚠️ Failed to seed agents: {e}")
+
     yield
     # Shutdown
     print("👋 Shutting down ARL Backend...")
